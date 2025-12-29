@@ -1,5 +1,6 @@
 package com.mopl.mopl_batch.batch.batch.tmdb.dto;
 
+import com.mopl.mopl_batch.batch.entity.Content;
 import com.mopl.mopl_batch.batch.entity.Type;
 
 import lombok.Builder;
@@ -12,4 +13,8 @@ public class ContentSaveDto {
 	private String description;
 	private Type type;
 	private String thumbnailUrl;
+
+	public static Content of(ContentSaveDto dto) {
+		return new Content(dto.getTitle(), dto.getDescription(), dto.getType(), dto.getThumbnailUrl());
+	}
 }
