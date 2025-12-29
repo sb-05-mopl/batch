@@ -26,6 +26,7 @@ public record TmdbMovieListResponse(
 
 		@JsonProperty("backdrop_path")
 		String backdropPath,
+		
 		@JsonProperty("genre_ids")
 		List<Integer> genreIds,
 

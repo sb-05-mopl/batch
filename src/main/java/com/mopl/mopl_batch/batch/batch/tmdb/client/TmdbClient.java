@@ -23,14 +23,20 @@ public class TmdbClient {
 	private final RestClient tmdbRestClient;
 	private final TmdbProperties tmdbProperties;
 
-	public List<ContentSaveDto> fetchMovieContent(Type type, Language language, int page) {
-		logTmdbProperties(language);
+	public List<ContentSaveDto> fetchContent(Type type, int page) {
+		return switch (type) {
+			case MOVIE -> fetchMovieContent(type, page);
+			case TV_SERIES -> fetchTvContent(type, page);
+			default -> Collections.emptyList();
+		};
+	}
 
+	private List<ContentSaveDto> fetchMovieContent(Type type, int page) {
 		TmdbMovieListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.path("/movie")
 				.queryParam("sort_by", "popularity.desc")
-				.queryParam("language", language.getCode())
+				.queryParam("language", "ko-KR")
 				.queryParam("page", page)
 				.build()
 			)
@@ -51,14 +57,12 @@ public class TmdbClient {
 			.toList();
 	}
 
-	public List<ContentSaveDto> fetchTvContent(Type type, Language language, int page) {
-		logTmdbProperties(language);
-
+	private List<ContentSaveDto> fetchTvContent(Type type, int page) {
 		TmdbTvListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.path("/tv")
 				.queryParam("sort_by", "popularity.desc")
-				.queryParam("language", language.getCode())
+				.queryParam("language", "ko-KR")
 				.queryParam("page", page)
 				.build()
 			)
@@ -77,13 +81,6 @@ public class TmdbClient {
 				.thumbnailUrl(tv.posterPath())
 				.build())
 			.toList();
-	}
-
-	private void logTmdbProperties(Language language) {
-		if (log.isDebugEnabled()) {
-			log.debug("TMDB API - BaseUrl: {}, Language: {}",
-				tmdbProperties.getBaseUrl(), language.getCode());
-		}
 	}
 
 	private boolean isResponseInvalid(Object response, Object results) {

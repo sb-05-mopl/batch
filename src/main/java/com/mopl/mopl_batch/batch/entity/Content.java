@@ -1,7 +1,5 @@
 package com.mopl.mopl_batch.batch.entity;
 
-
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,4 +53,5 @@ public class Content extends BaseEntity {
 		this.averageRating = averageRating;
 		this.reviewCount = reviewCount;
 	}
+
 }
