@@ -8,4 +8,4 @@ data:
   tmdb:
     read-access-token: ${TMDB_READ_ACCESS_TOKEN}
     key: ${TMDB_KEY}
-    movie-base-url: https://api.themoviedb.org/3/discover/movie
+    base-url: https://api.themoviedb.org/3/discover
