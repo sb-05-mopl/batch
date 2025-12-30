@@ -39,4 +39,66 @@ public class TmdbClinetTest {
 			System.out.println("======================");
 		}
 	}
+
+	/**
+	 * 데이터 중복됨
+	 *         {
+	 *             "adult": false,
+	 *             "backdrop_path": "/AeJgnEXaFcsGzU5Y4Nrq9WggAQ5.jpg",
+	 *             "genre_ids": [
+	 *                 10765,
+	 *                 9648,
+	 *                 35
+	 *             ],
+	 *             "id": 119051,
+	 *             "origin_country": [
+	 *                 "US"
+	 *             ],
+	 *             "original_language": "en",
+	 *             "original_name": "Wednesday",
+	 *             "overview": "똑똑함은 기본, 비꼬는 것에도 도가 튼 웬즈데이 아담스. 암울함을 풍기는 그녀가 네버모어 아카데미에서 얽히고설킨 미스터리를 파헤치기 시작한다. 새 친구도 사귀고, 앙숙도 만들며.",
+	 *             "popularity": 59.7384,
+	 *             "poster_path": "/oCpvKD0yuRV9OAZ8xklRy9HWc6l.jpg",
+	 *             "first_air_date": "2022-11-23",
+	 *             "name": "웬즈데이",
+	 *             "vote_average": 8.368,
+	 *             "vote_count": 10155
+	 *         }
+	 *     ],
+	 *          {
+	 *             "adult": false,
+	 *             "backdrop_path": "/AeJgnEXaFcsGzU5Y4Nrq9WggAQ5.jpg",
+	 *             "genre_ids": [
+	 *                 10765,
+	 *                 9648,
+	 *                 35
+	 *             ],
+	 *             "id": 119051,
+	 *             "origin_country": [
+	 *                 "US"
+	 *             ],
+	 *             "original_language": "en",
+	 *             "original_name": "Wednesday",
+	 *             "overview": "똑똑함은 기본, 비꼬는 것에도 도가 튼 웬즈데이 아담스. 암울함을 풍기는 그녀가 네버모어 아카데미에서 얽히고설킨 미스터리를 파헤치기 시작한다. 새 친구도 사귀고, 앙숙도 만들며.",
+	 *             "popularity": 65.027,
+	 *             "poster_path": "/oCpvKD0yuRV9OAZ8xklRy9HWc6l.jpg",
+	 *             "first_air_date": "2022-11-23",
+	 *             "name": "웬즈데이",
+	 *             "vote_average": 8.368,
+	 *             "vote_count": 10156
+	 *         },
+	 */
+	@Test
+	public void duplicateTest() {
+		for (int page = 1; page < 50; page++) {
+			List<ContentSaveDto> contentSaveDtos = tmdbClient.fetchContent(Type.TV_SERIES, page);
+			for (ContentSaveDto dto : contentSaveDtos) {
+				System.out.println(dto.getSourceId());
+				if (dto.getSourceId() == 119051) {
+					System.out.println("duplicate!! page: " + page);
+				}
+			}
+
+		}
+	}
 }
