@@ -19,8 +19,7 @@ public class TmdbMovieProcessor implements ItemProcessor<ContentSaveDto, Content
 	@Override
 	public ContentSaveDto process(ContentSaveDto item) {
 
-		// 이거 ID 반환해주는데 그거 생각해봐야할 듯
-		if (contentRepository.existsByTitle(item.getTitle())) {
+		if (contentRepository.existsBySourceId(item.getSourceId())) {
 			return null;
 		}
 

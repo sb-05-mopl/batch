@@ -10,5 +10,5 @@ import com.mopl.mopl_batch.batch.entity.Content;
 @Repository
 public interface ContentRepository extends JpaRepository<Content, UUID> {
 
-	boolean existsByTitle(String title);
+	boolean existsBySourceId(long id);
 }

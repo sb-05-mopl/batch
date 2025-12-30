@@ -13,8 +13,10 @@ public class ContentSaveDto {
 	private String description;
 	private Type type;
 	private String thumbnailUrl;
+	private long sourceId;
 
 	public static Content of(ContentSaveDto dto) {
-		return new Content(dto.getTitle(), dto.getDescription(), dto.getType(), dto.getThumbnailUrl());
+		return new Content(dto.getTitle(), dto.getDescription(), dto.getType(), dto.getThumbnailUrl(),
+			dto.getSourceId());
 	}
 }

@@ -53,6 +53,7 @@ public class TmdbClient {
 				.type(type)
 				.description(movie.overview())
 				.thumbnailUrl(movie.posterPath())
+				.sourceId(movie.id())
 				.build())
 			.toList();
 	}
