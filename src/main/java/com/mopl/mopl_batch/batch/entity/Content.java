@@ -33,13 +33,17 @@ public class Content extends BaseEntity {
 	@Column(name = "review_count", nullable = false)
 	private int reviewCount;
 
-	public Content(String title, String description, Type type, String thumbnailUrl) {
+	@Column(nullable = false, unique = true)
+	private long sourceId;
+
+	public Content(String title, String description, Type type, String thumbnailUrl, long sourceId) {
 		this.title = title;
 		this.description = description;
 		this.type = type;
 		this.thumbnailUrl = thumbnailUrl;
 		this.averageRating = 0.0;
 		this.reviewCount = 0;
+		this.sourceId = sourceId;
 	}
 
 	public void update(String title, String description, Type type, String thumbnailUrl) {
