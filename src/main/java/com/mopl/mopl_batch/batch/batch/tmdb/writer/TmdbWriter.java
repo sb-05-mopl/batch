@@ -1,6 +1,8 @@
 package com.mopl.mopl_batch.batch.batch.tmdb.writer;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
@@ -18,25 +20,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TmdbMovieWriter implements ItemStreamWriter<ContentSaveDto> {
+public class TmdbWriter implements ItemStreamWriter<ContentSaveDto> {
 
 	private final ContentRepository contentRepository;
 
 	private int totalWritten = 0;
-	private static final String TOTAL_WRITTEN_KEY = "tmdb.movie.total.written";
+	private static final String TOTAL_WRITTEN_KEY = "tmdb.total.written";
 
 	@Override
 	public void write(Chunk<? extends ContentSaveDto> chunk) {
 		if (chunk.isEmpty())
 			return;
 
-		List<Content> contents = chunk.getItems().stream().map(
-			ContentSaveDto::of
-		).toList();
+		// 중복 제거.
+		Map<Long, ContentSaveDto> contentMap = chunk.getItems().stream()
+			.collect(Collectors.toMap(
+				ContentSaveDto::getSourceId,
+				dto -> dto,
+				(existing, replacement) -> replacement
+			));
+
+		List<Content> contents = contentMap.values().stream().map(ContentSaveDto::of).toList();
 
 		contentRepository.saveAll(contents);
 		totalWritten += contents.size();
-		log.info("Total written: {}", totalWritten);
+
+		log.info("[TmdbWriter] totalWritten: {}", totalWritten);
+		log.info("[TmdbWriter] chunk size: {}", chunk.size());
 	}
 
 	@Override

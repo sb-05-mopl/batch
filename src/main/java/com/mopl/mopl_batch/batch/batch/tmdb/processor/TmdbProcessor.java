@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TmdbMovieProcessor implements ItemProcessor<ContentSaveDto, ContentSaveDto> {
+public class TmdbProcessor implements ItemProcessor<ContentSaveDto, ContentSaveDto> {
 
 	private final ContentRepository contentRepository;
 
@@ -22,6 +22,9 @@ public class TmdbMovieProcessor implements ItemProcessor<ContentSaveDto, Content
 		if (contentRepository.existsBySourceId(item.getSourceId())) {
 			return null;
 		}
+
+		log.info("[TmdbProcessor.process] item.id: {}", item.getSourceId());
+		log.info("[TmdbProcessor.process] item.type: {}", item.getType());
 
 		return item;
 	}

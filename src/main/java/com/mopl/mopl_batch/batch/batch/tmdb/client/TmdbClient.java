@@ -10,7 +10,6 @@ import com.mopl.mopl_batch.batch.batch.tmdb.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbMovieListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbTvListResponse;
 import com.mopl.mopl_batch.batch.entity.Type;
-import com.mopl.mopl_batch.batch.properties.TmdbProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TmdbClient {
 
 	private final RestClient tmdbRestClient;
-	private final TmdbProperties tmdbProperties;
 
 	public List<ContentSaveDto> fetchContent(Type type, int page) {
 		return switch (type) {
@@ -80,6 +78,7 @@ public class TmdbClient {
 				.type(type)
 				.description(tv.overview())
 				.thumbnailUrl(tv.posterPath())
+				.sourceId(tv.id())
 				.build())
 			.toList();
 	}
