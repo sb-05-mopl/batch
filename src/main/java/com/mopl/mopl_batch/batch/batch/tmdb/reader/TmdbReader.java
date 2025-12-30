@@ -56,6 +56,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 			currentIndex = ec.getInt(CURRENT_INDEX_KEY);
 		}
 		log.info("[TmdbReader.open] currentPage: {}", currentPage);
+
 	}
 
 	@Override
@@ -81,6 +82,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 			}
 
 			if (currentIndex >= currentPageData.size()) {
+				log.info("[TmdbReader.read] currentData size is over. currentPage: [{}]", currentPage);
 				currentPage++;
 				currentIndex = 0;
 				currentPageData = null;
