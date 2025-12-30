@@ -10,7 +10,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.common.processor.ContentsProcessor;
 import com.mopl.mopl_batch.batch.batch.common.writer.ContentsWriter;
+import com.mopl.mopl_batch.batch.batch.sport.listener.SportStepListener;
 import com.mopl.mopl_batch.batch.batch.sport.reader.SportApiReader;
+import com.mopl.mopl_batch.batch.entity.Type;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +35,7 @@ public class SportApiStepConfig {
 			.reader(sportApiReader)
 			.processor(contentsProcessor)
 			.writer(contentsWriter)
+			.listener(new SportStepListener(Type.SPORTS))
 			.build();
 	}
 }

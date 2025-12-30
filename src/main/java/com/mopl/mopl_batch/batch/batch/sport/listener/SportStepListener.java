@@ -3,7 +3,6 @@ package com.mopl.mopl_batch.batch.batch.sport.listener;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.item.ExecutionContext;
 
 import com.mopl.mopl_batch.batch.entity.Type;
 
@@ -18,7 +17,6 @@ public class SportStepListener implements StepExecutionListener {
 
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		ExecutionContext context = stepExecution.getExecutionContext();
 		log.info("[SportStepListener][Step Start]");
 	}
 
