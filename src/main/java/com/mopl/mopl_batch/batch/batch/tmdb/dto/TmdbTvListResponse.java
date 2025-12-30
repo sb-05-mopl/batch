@@ -5,52 +5,65 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public record TmdbTvListResponse(
-	int page,
-	@JsonProperty("results") List<TmdbTvDto> results,
-	@JsonProperty("total_pages") int totalPages,
-	@JsonProperty("total_results") int totalResults
-) {
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	public record TmdbTvDto(
+import lombok.Builder;
+import lombok.Data;
 
-		boolean adult,
+@Data
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class TmdbTvListResponse {
+
+	private int page;
+
+	@JsonProperty("results")
+	private List<TmdbTvDto> results;
+
+	@JsonProperty("total_pages")
+	private int totalPages;
+
+	@JsonProperty("total_results")
+	private int totalResults;
+
+	@Data
+	@Builder
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class TmdbTvDto {
+
+		private boolean adult;
 
 		@JsonProperty("backdrop_path")
-		String backdropPath,
+		private String backdropPath;
 
 		@JsonProperty("genre_ids")
-		List<Integer> genreIds,
+		private List<Integer> genreIds;
 
-		long id,
+		private long id;
 
 		@JsonProperty("origin_country")
-		List<String> originCountry,
+		private List<String> originCountry;
 
 		@JsonProperty("original_language")
-		String originalLanguage,
+		private String originalLanguage;
 
 		@JsonProperty("original_name")
-		String originalName,
+		private String originalName;
 
-		String overview,
+		private String overview;
 
-		double popularity,
+		private double popularity;
 
 		@JsonProperty("poster_path")
-		String posterPath,
+		private String posterPath;
 
 		@JsonProperty("first_air_date")
-		String firstAirDate,
+		private String firstAirDate;
 
-		String name,
+		private String name;
 
 		@JsonProperty("vote_average")
-		double voteAverage,
+		private double voteAverage;
 
 		@JsonProperty("vote_count")
-		int voteCount
-	) {
+		private int voteCount;
 	}
 }

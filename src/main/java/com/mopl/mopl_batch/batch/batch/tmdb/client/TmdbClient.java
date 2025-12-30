@@ -3,25 +3,27 @@ package com.mopl.mopl_batch.batch.batch.tmdb.client;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import com.mopl.mopl_batch.batch.batch.tmdb.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbMovieListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbTvListResponse;
 import com.mopl.mopl_batch.batch.entity.Type;
-import com.mopl.mopl_batch.batch.properties.TmdbProperties;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class TmdbClient {
 
 	private final RestClient tmdbRestClient;
-	private final TmdbProperties tmdbProperties;
+
+	public TmdbClient(
+		@Qualifier("tmdbRestClient") RestClient sportsApiRestClient) {
+		this.tmdbRestClient = sportsApiRestClient;
+	}
 
 	public List<ContentSaveDto> fetchContent(Type type, int page) {
 		return switch (type) {
@@ -43,16 +45,17 @@ public class TmdbClient {
 			.retrieve()
 			.body(TmdbMovieListResponse.class);
 
-		if (isResponseInvalid(response, response != null ? response.results() : null)) {
+		if (isResponseInvalid(response, response != null ? response.getResults() : null)) {
 			return Collections.emptyList();
 		}
 
-		return response.results().stream()
+		return response.getResults().stream()
 			.map(movie -> ContentSaveDto.builder()
-				.title(movie.title())
+				.title(movie.getTitle())
 				.type(type)
-				.description(movie.overview())
-				.thumbnailUrl(movie.posterPath())
+				.description(movie.getOverview())
+				.thumbnailUrl(movie.getPosterPath())
+				.sourceId(movie.getId())
 				.build())
 			.toList();
 	}
@@ -69,16 +72,17 @@ public class TmdbClient {
 			.retrieve()
 			.body(TmdbTvListResponse.class);
 
-		if (isResponseInvalid(response, response != null ? response.results() : null)) {
+		if (isResponseInvalid(response, response != null ? response.getResults() : null)) {
 			return Collections.emptyList();
 		}
 
-		return response.results().stream()
+		return response.getResults().stream()
 			.map(tv -> ContentSaveDto.builder()
-				.title(tv.name())
+				.title(tv.getName())
 				.type(type)
-				.description(tv.overview())
-				.thumbnailUrl(tv.posterPath())
+				.description(tv.getOverview())
+				.thumbnailUrl(tv.getPosterPath())
+				.sourceId(tv.getId())
 				.build())
 			.toList();
 	}
