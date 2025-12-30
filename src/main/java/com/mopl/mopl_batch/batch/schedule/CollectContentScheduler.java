@@ -18,8 +18,8 @@ public class CollectContentScheduler {
 	private final Job fetchTmdbContentsJob;
 
 	// @PostConstruct
-	// @Scheduled(cron = "0 */3 * * * *") // 3분 마다
-	@Scheduled(cron = "0 0 1 * * *") // 새벽 1시
+	// @Scheduled(cron = "0 0 1 * * *") // 새벽 1시
+	@Scheduled(cron = "0 */3 * * * *") // 3분 마다
 	public void setFetchTmdbContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
@@ -31,8 +31,8 @@ public class CollectContentScheduler {
 		}
 	}
 
-	// @Scheduled(cron = "0 */3 * * * *")
-	@Scheduled(cron = "0 0 1 * * *")
+	// @Scheduled(cron = "0 0 1 * * *")
+	@Scheduled(cron = "0 */3 * * * *")
 	public void setFetchSportContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()

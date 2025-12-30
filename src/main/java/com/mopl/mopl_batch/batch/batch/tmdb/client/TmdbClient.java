@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbMovieListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbTvListResponse;
 import com.mopl.mopl_batch.batch.entity.Type;

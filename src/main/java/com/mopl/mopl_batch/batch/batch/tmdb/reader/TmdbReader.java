@@ -10,7 +10,7 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.stereotype.Component;
 
-import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.client.TmdbClient;
 import com.mopl.mopl_batch.batch.entity.Type;
 

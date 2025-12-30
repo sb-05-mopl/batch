@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.common.processor.ContentsProcessor;
 import com.mopl.mopl_batch.batch.batch.common.writer.ContentsWriter;
 import com.mopl.mopl_batch.batch.batch.sport.listener.SportStepListener;

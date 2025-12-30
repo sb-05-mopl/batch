@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.sport.client.SportsApiClient;
 
 @SpringBootTest

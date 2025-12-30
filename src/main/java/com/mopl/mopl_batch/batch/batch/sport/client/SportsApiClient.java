@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.common.util.DateFormatUtil;
 import com.mopl.mopl_batch.batch.batch.sport.dto.SportsEventsResponse;
 import com.mopl.mopl_batch.batch.batch.sport.dto.SportsEventsResponse.EventDto;

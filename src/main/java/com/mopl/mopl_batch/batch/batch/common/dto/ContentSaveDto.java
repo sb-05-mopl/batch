@@ -1,4 +1,4 @@
-package com.mopl.mopl_batch.batch.batch.common;
+package com.mopl.mopl_batch.batch.batch.common.dto;
 
 import com.mopl.mopl_batch.batch.entity.Content;
 import com.mopl.mopl_batch.batch.entity.Type;
