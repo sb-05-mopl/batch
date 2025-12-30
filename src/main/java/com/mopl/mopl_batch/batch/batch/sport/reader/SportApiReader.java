@@ -40,16 +40,19 @@ public class SportApiReader implements ItemStreamReader<ContentSaveDto> {
 			currentDate = executionContext.getInt(CURRENT_DATE_KEY);
 			currentIndex = executionContext.getInt(CURRENT_INDEX_KEY);
 		} else {
-			startDate = LocalDate.now();
+			startDate = LocalDate.now().plusDays(MAX_DATE / 2);
 			currentDate = 1;
 			currentIndex = 0;
 		}
 		currentData = null;
+		log.info("[SportApiReader.open] startDate: {}, currentDate: {}, currentIndex: {}", startDate, currentDate,
+			currentIndex);
 	}
 
 	@Override
 	public ContentSaveDto read() {
 		while (true) {
+
 			if (currentDate > MAX_DATE) {
 				return null;
 			}
@@ -66,6 +69,7 @@ public class SportApiReader implements ItemStreamReader<ContentSaveDto> {
 			}
 
 			if (currentIndex >= currentData.size()) {
+				log.info("[SportApiReader.read] currentData size is over. currentDate: [{}]", currentDate);
 				currentDate++;
 				currentIndex = 0;
 				currentData = null;
