@@ -31,7 +31,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 	private int currentIndex;
 	private List<ContentSaveDto> currentPageData;
 
-	private static final int MAX_PAGES = 50;
+	private static final int MAX_PAGES = 100;
 	private static final String CURRENT_PAGE_KEY = "tmdb.current.page";
 	private static final String CURRENT_INDEX_KEY = "tmdb.current.index";
 
@@ -45,31 +45,52 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 
 	@Override
 	public void open(ExecutionContext ec) throws ItemStreamException {
+		this.currentPage = 1;
+		this.currentIndex = 0;
+		this.currentPageData = null;
+
 		if (ec.containsKey(CURRENT_PAGE_KEY)) {
 			currentPage = ec.getInt(CURRENT_PAGE_KEY);
+		}
+		if (ec.containsKey(CURRENT_INDEX_KEY)) {
 			currentIndex = ec.getInt(CURRENT_INDEX_KEY);
-		} else {
-			currentPage = 1;
-			currentIndex = 0;
-			currentPageData = null;
 		}
 		log.info("[TmdbReader.open] currentPage: {}", currentPage);
 	}
 
 	@Override
 	public ContentSaveDto read() {
-		if (currentPageData == null || currentIndex >= currentPageData.size()) {
-			currentPageData = tmdbClient.fetchContent(this.currentType, currentPage);
-			currentIndex = 0;
-			currentPage++;
-			if (currentPageData.isEmpty() || currentPage > MAX_PAGES) {
+		while (true) {
+			if (currentType == null) {
+				throw new IllegalStateException(
+					"TmdbReader.currentType is null. StepExecutionContext에 type이 설정되어야 한다..");
+			}
+
+			if (currentPage > MAX_PAGES) {
+				log.info("[TmdbReader.read] reach MAX_PAGES. type={}, page={}", currentType, currentPage);
 				return null;
 			}
+
+			if (currentPageData == null) {
+				currentPageData = tmdbClient.fetchContent(currentType, currentPage);
+
+				if (currentPageData == null || currentPageData.isEmpty()) {
+					log.info("[TmdbReader.read] empty page. type={}, page={}", currentType, currentPage);
+					return null;
+				}
+			}
+
+			if (currentIndex >= currentPageData.size()) {
+				System.out.println(currentPage);
+				currentPage++;
+				currentIndex = 0;
+				currentPageData = null;
+				continue;
+			}
+
+			ContentSaveDto item = currentPageData.get(currentIndex++);
+			return item;
 		}
-
-		log.info("[TmdbReader.read] currentPage: {}", currentPage);
-
-		return currentPageData.get(currentIndex++);
 	}
 
 	@Override

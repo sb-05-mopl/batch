@@ -31,6 +31,6 @@ public class TmdbStepListener implements StepExecutionListener {
 			stepExecution.getReadCount(),
 			stepExecution.getWriteCount()
 		);
-		return ExitStatus.COMPLETED;
+		return stepExecution.getExitStatus();
 	}
 }
