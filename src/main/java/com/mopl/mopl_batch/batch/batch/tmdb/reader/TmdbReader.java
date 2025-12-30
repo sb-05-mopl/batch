@@ -10,8 +10,8 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.stereotype.Component;
 
+import com.mopl.mopl_batch.batch.batch.common.ContentSaveDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.client.TmdbClient;
-import com.mopl.mopl_batch.batch.batch.tmdb.dto.ContentSaveDto;
 import com.mopl.mopl_batch.batch.entity.Type;
 
 import lombok.RequiredArgsConstructor;
@@ -56,6 +56,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 			currentIndex = ec.getInt(CURRENT_INDEX_KEY);
 		}
 		log.info("[TmdbReader.open] currentPage: {}", currentPage);
+
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 			}
 
 			if (currentIndex >= currentPageData.size()) {
-				System.out.println(currentPage);
+				log.info("[TmdbReader.read] currentData size is over. currentPage: [{}]", currentPage);
 				currentPage++;
 				currentIndex = 0;
 				currentPageData = null;

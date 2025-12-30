@@ -1,4 +1,4 @@
-package com.mopl.mopl_batch.batch.batch.tmdb.dto;
+package com.mopl.mopl_batch.batch.batch.common;
 
 import com.mopl.mopl_batch.batch.entity.Content;
 import com.mopl.mopl_batch.batch.entity.Type;
