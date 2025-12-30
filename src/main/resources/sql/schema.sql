@@ -100,7 +100,7 @@ CREATE TABLE contents
     CONSTRAINT pk_contents PRIMARY KEY (id),
     CONSTRAINT ck_contents_rating CHECK (average_rating >= 0 AND average_rating <= 5),
     CONSTRAINT ck_contents_review_count CHECK (review_count >= 0),
-    constraint uq_contents_source_id unique (source_id)
+    constraint uk_type_source_id unique (source_id, type)
 );
 
 -- reviews 테이블 생성 (contents FK 포함)
