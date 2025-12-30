@@ -34,24 +34,24 @@ public class SportsApiClient {
 		try {
 			return doFetch(dateString);
 		} catch (HttpClientErrorException.TooManyRequests e) {
-			log.warn("Sports API 429 Too Many Requests 발생. 60초 대기 후 재시도");
+			log.warn("[SportsApiClient.fetchContent] Sports API 429 Too Many Requests wait 60s");
 
 			try {
 				Thread.sleep(60_000);
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
-				log.error("Sleep interrupted", ie);
+				log.error("[SportsApiClient.fetchContent] Sleep interrupted", ie);
 				return Collections.emptyList();
 			}
 
 			try {
 				return doFetch(dateString);
 			} catch (Exception retryException) {
-				log.error("Sports API 재시도 실패", retryException);
+				log.error("[SportsApiClient.fetchContent] Sports API 재시도 실패", retryException);
 				return Collections.emptyList();
 			}
 		} catch (Exception e) {
-			log.error("Sports API 호출 실패", e);
+			log.error("[SportsApiClient.fetchContent] Sports API 호출 실패", e);
 			return Collections.emptyList();
 		}
 	}
@@ -66,7 +66,7 @@ public class SportsApiClient {
 			.body(SportsEventsResponse.class);
 
 		if (response == null || response.getEvents() == null || response.getEvents().isEmpty()) {
-			log.warn("Sports API response is null or empty");
+			log.warn("[SportsApiClient.doFetch] Sports API response is null or empty");
 			return Collections.emptyList();
 		}
 
