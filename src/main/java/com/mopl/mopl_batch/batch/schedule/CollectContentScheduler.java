@@ -5,8 +5,8 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Scheduled;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -17,9 +17,9 @@ public class CollectContentScheduler {
 	private final Job fetchSportContentsJob;
 	private final Job fetchTmdbContentsJob;
 
-	// @Scheduled(cron = "0 0 1 * * *") // 새벽 1시
 	// @Scheduled(cron = "0 */3 * * * *") // 3분 마다
-	@PostConstruct
+	// @PostConstruct // 실행하고 딱 한번 실행
+	@Scheduled(cron = "0 0 1 * * *") // 새벽 1시
 	public void setFetchTmdbContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
@@ -31,8 +31,9 @@ public class CollectContentScheduler {
 		}
 	}
 
-	// @Scheduled(cron = "0 0 1 * * *")
 	// @Scheduled(cron = "0 */3 * * * *")
+	// @PostConstruct
+	@Scheduled(cron = "0 0 1 * * *")
 	public void setFetchSportContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
