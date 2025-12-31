@@ -19,7 +19,7 @@ public class TmdbGenreListResponse {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class GenreDto {
 
-		private long id;
+		private int id;
 		private String name;
 	}
 }
