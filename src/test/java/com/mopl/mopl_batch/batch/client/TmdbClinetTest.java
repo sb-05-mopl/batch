@@ -1,6 +1,7 @@
 package com.mopl.mopl_batch.batch.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,14 @@ public class TmdbClinetTest {
 			System.out.println("type: " + dto.getType());
 			System.out.println("thumbnail: " + dto.getThumbnailUrl());
 			System.out.println("======================");
+		}
+	}
+
+	@Test
+	public void fetchGenreTest() {
+		Map<Long, String> genres = tmdbClient.getGenres(Type.MOVIE);
+		for (Long key : genres.keySet()) {
+			System.out.println(key + " : " + genres.get(key));
 		}
 	}
 

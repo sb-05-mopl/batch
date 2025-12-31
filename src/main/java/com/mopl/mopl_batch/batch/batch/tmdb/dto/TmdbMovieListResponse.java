@@ -24,6 +24,7 @@ public class TmdbMovieListResponse {
 	@JsonProperty("total_results")
 	private int totalResults;
 
+	@Data
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class TmdbMovieDto {
 

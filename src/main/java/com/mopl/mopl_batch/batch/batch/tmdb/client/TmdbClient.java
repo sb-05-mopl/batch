@@ -1,13 +1,16 @@
 package com.mopl.mopl_batch.batch.batch.tmdb.client;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbGenreListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbMovieListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbTvListResponse;
 import com.mopl.mopl_batch.batch.entity.Type;
@@ -33,10 +36,41 @@ public class TmdbClient {
 		};
 	}
 
+	public Map<Long, String> getGenres(Type type) {
+		return switch (type) {
+			case MOVIE -> getGenresByType("movie");
+			case TV_SERIES -> getGenresByType("tv");
+			default -> Map.of();
+		};
+	}
+
+	private Map<Long, String> getGenresByType(String typeStr) {
+		TmdbGenreListResponse response = tmdbRestClient.get()
+			.uri(uriBuilder -> uriBuilder
+				.pathSegment("3", "genre", typeStr, "list")
+				.queryParam("language", "ko-KR")
+				.build()
+			)
+			.retrieve()
+			.body(TmdbGenreListResponse.class);
+
+		if (response == null || response.getGenres() == null) {
+			return Map.of();
+		}
+
+		Map<Long, String> genres = new HashMap<>();
+		for (TmdbGenreListResponse.GenreDto genre : response.getGenres()) {
+			genres.put(genre.getId(), genre.getName());
+		}
+
+		return genres;
+	}
+
 	private List<ContentSaveDto> fetchMovieContent(Type type, int page) {
 		TmdbMovieListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
-				.path("/movie")
+				.path("/3/discover/movie")
+				.queryParam("3", "discover", "movie")
 				.queryParam("sort_by", "popularity.desc")
 				.queryParam("language", "ko-KR")
 				.queryParam("page", page)
@@ -63,7 +97,7 @@ public class TmdbClient {
 	private List<ContentSaveDto> fetchTvContent(Type type, int page) {
 		TmdbTvListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
-				.path("/tv")
+				.pathSegment("3", "discover", "tv")
 				.queryParam("sort_by", "popularity.desc")
 				.queryParam("language", "ko-KR")
 				.queryParam("page", page)
