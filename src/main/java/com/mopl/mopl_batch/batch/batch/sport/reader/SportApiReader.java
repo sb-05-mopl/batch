@@ -76,8 +76,7 @@ public class SportApiReader implements ItemStreamReader<ContentFetchDto> {
 				continue;
 			}
 
-			// return currentData.get(currentIndex++);
-			return null;
+			return currentData.get(currentIndex++);
 		}
 	}
 
