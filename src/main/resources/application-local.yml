@@ -51,7 +51,7 @@ management:
 logging:
   level:
     root: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.batch: DEBUG
-    org.springframework.jdbc.core: DEBUG
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org.springframework.batch: INFO
+    org.springframework.jdbc.core: INFO
