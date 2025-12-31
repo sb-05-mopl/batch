@@ -2,6 +2,7 @@ package com.mopl.mopl_batch.batch.batch.tmdb.client;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbGenreListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbMovieListResponse;
 import com.mopl.mopl_batch.batch.batch.tmdb.dto.TmdbTvListResponse;
@@ -28,7 +29,7 @@ public class TmdbClient {
 		this.tmdbRestClient = sportsApiRestClient;
 	}
 
-	public List<ContentSaveDto> fetchContent(Type type, int page) {
+	public List<ContentFetchDto> fetchContent(Type type, int page) {
 		return switch (type) {
 			case MOVIE -> fetchMovieContent(type, page);
 			case TV_SERIES -> fetchTvContent(type, page);
@@ -36,15 +37,14 @@ public class TmdbClient {
 		};
 	}
 
-	public Map<Long, String> getGenres(Type type) {
-		return switch (type) {
-			case MOVIE -> getGenresByType("movie");
-			case TV_SERIES -> getGenresByType("tv");
-			default -> Map.of();
-		};
+	public Map<Integer, String> getGenres() {
+		Map<Integer, String> allGenres = new HashMap<>();
+		allGenres.putAll(getGenresByType("movie"));
+		allGenres.putAll(getGenresByType("tv"));
+		return allGenres;
 	}
 
-	private Map<Long, String> getGenresByType(String typeStr) {
+	private Map<Integer, String> getGenresByType(String typeStr) {
 		TmdbGenreListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.pathSegment("3", "genre", typeStr, "list")
@@ -58,7 +58,7 @@ public class TmdbClient {
 			return Map.of();
 		}
 
-		Map<Long, String> genres = new HashMap<>();
+		Map<Integer, String> genres = new HashMap<>();
 		for (TmdbGenreListResponse.GenreDto genre : response.getGenres()) {
 			genres.put(genre.getId(), genre.getName());
 		}
@@ -66,7 +66,7 @@ public class TmdbClient {
 		return genres;
 	}
 
-	private List<ContentSaveDto> fetchMovieContent(Type type, int page) {
+	private List<ContentFetchDto> fetchMovieContent(Type type, int page) {
 		TmdbMovieListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.path("/3/discover/movie")
@@ -84,17 +84,18 @@ public class TmdbClient {
 		}
 
 		return response.getResults().stream()
-			.map(movie -> ContentSaveDto.builder()
+			.map(movie -> ContentFetchDto.builder()
 				.title(movie.getTitle())
 				.type(type)
 				.description(movie.getOverview())
 				.thumbnailUrl(movie.getPosterPath())
 				.sourceId(movie.getId())
+				.genreIds(new HashSet<>(movie.getGenreIds()))
 				.build())
 			.toList();
 	}
 
-	private List<ContentSaveDto> fetchTvContent(Type type, int page) {
+	private List<ContentFetchDto> fetchTvContent(Type type, int page) {
 		TmdbTvListResponse response = tmdbRestClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.pathSegment("3", "discover", "tv")
@@ -111,12 +112,13 @@ public class TmdbClient {
 		}
 
 		return response.getResults().stream()
-			.map(tv -> ContentSaveDto.builder()
+			.map(tv -> ContentFetchDto.builder()
 				.title(tv.getName())
 				.type(type)
 				.description(tv.getOverview())
 				.thumbnailUrl(tv.getPosterPath())
 				.sourceId(tv.getId())
+				.genreIds(new HashSet<>(tv.getGenreIds()))
 				.build())
 			.toList();
 	}
