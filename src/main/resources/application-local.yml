@@ -18,6 +18,9 @@ spring:
       initialize-schema: always
     job:
       enabled: false
+    schedule:
+      tmdb: 0 */3 * * * * # 3분에 한번
+      sport-api: 0 */10 * * * * # 10분에 한번
 
   jpa:
     hibernate:

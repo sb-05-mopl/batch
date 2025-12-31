@@ -3,24 +3,24 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL:}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
+    jdbc-url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_USERNAME}
 
-  sql:
-    init:
-      mode: never
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        jdbc:
-          time_zone: Asia/Seoul
+  batch:
+    datasource:
+      jdbc-url: ${BATCH_DB_URL}
+      driver-class-name: org.postgresql.Driver
+      username: ${BATCH_DB_USERNAME}
+      password: ${BATCH_DB_PASSWORD}
+    jdbc:
+      initialize-schema: never
+    job:
+      enabled: false
+    schedule:
+      tmdb: 0 0 1 * * * # 매일 새벽 1시
+      sport-api: 0 0 1 * * * # 매일 새벽 1시
 
   servlet:
     multipart:
