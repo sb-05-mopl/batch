@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
@@ -27,6 +29,8 @@ public class TmdbClient {
 	private final RestClient tmdbRestClient;
 
 	private final Map<Integer, String> genres;
+	private final static long TOO_MANY_REQUESTS_EXCEPTION = 60_000L;
+	private final static long HTTP_SERVER_ERROR_EXCEPTION_SLEEP = 5_000L;
 
 	public TmdbClient(
 		@Qualifier("tmdbRestClient") RestClient sportsApiRestClient) {
@@ -35,11 +39,29 @@ public class TmdbClient {
 	}
 
 	public List<ContentFetchDto> fetchContent(Type type, int page) {
-		return switch (type) {
-			case MOVIE -> fetchMovieContent(type, page);
-			case TV_SERIES -> fetchTvContent(type, page);
-			default -> Collections.emptyList();
-		};
+		int maxAttempts = 3;
+		int attempt = 0;
+
+		while (true) {
+			try {
+				return switch (type) {
+					case MOVIE -> fetchMovieContent(type, page);
+					case TV_SERIES -> fetchTvContent(type, page);
+					default -> Collections.emptyList();
+				};
+
+			} catch (HttpClientErrorException.TooManyRequests e) {
+				attempt++;
+				if (attempt >= maxAttempts)
+					throw e;
+				sleep(TOO_MANY_REQUESTS_EXCEPTION);
+			} catch (HttpServerErrorException e) {
+				attempt++;
+				if (attempt >= maxAttempts)
+					throw e;
+				sleep(HTTP_SERVER_ERROR_EXCEPTION_SLEEP);
+			}
+		}
 	}
 
 	private Map<Integer, String> getGenresByType(String typeStr) {
@@ -159,6 +181,15 @@ public class TmdbClient {
 		allGenres.putAll(getGenresByType("movie"));
 		allGenres.putAll(getGenresByType("tv"));
 		return allGenres;
+	}
+
+	private void sleep(long ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new IllegalStateException("Interrupted while retrying", ie);
+		}
 	}
 
 }
