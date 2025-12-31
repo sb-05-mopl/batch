@@ -1,5 +1,7 @@
 package com.mopl.mopl_batch.batch.schedule;
 
+import java.time.LocalDate;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -16,14 +18,15 @@ public class CollectContentScheduler {
 	private final JobLauncher jobLauncher;
 	private final Job fetchSportContentsJob;
 	private final Job fetchTmdbContentsJob;
+	private final String date = LocalDate.now().toString();
 
-	// @Scheduled(cron = "0 */3 * * * *") // 3분 마다
 	// @PostConstruct // 실행하고 딱 한번 실행
-	@Scheduled(cron = "0 0 1 * * *") // 새벽 1시
+	@Scheduled(cron = "${spring.batch.schedule.tmdb}")
 	public void setFetchTmdbContentsJob() {
 		try {
+
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("runTime", System.currentTimeMillis())
+				.addString("runDay", date)
 				.toJobParameters();
 			jobLauncher.run(fetchTmdbContentsJob, jobParameters);
 		} catch (Exception e) {
@@ -31,13 +34,11 @@ public class CollectContentScheduler {
 		}
 	}
 
-	// @Scheduled(cron = "0 */3 * * * *")
-	// @PostConstruct
-	@Scheduled(cron = "0 0 1 * * *")
+	@Scheduled(cron = "${spring.batch.schedule.sport-api}")
 	public void setFetchSportContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("runTime", System.currentTimeMillis())
+				.addString("runDay", date)
 				.toJobParameters();
 			jobLauncher.run(fetchSportContentsJob, jobParameters);
 		} catch (Exception e) {
