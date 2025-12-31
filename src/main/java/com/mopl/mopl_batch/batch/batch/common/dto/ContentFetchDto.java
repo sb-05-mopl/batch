@@ -1,6 +1,6 @@
 package com.mopl.mopl_batch.batch.batch.common.dto;
 
-import java.util.Set;
+import java.util.List;
 
 import com.mopl.mopl_batch.batch.entity.Content;
 import com.mopl.mopl_batch.batch.entity.Type;
@@ -16,8 +16,7 @@ public class ContentFetchDto {
 	private Type type;
 	private String thumbnailUrl;
 	private long sourceId;
-	// tmdb api에 장르 id가 겹치는게 존재하여 Set으로 정의
-	private Set<Integer> genreIds;
+	private List<String> tags;
 
 	public static Content of(ContentFetchDto dto) {
 		return new Content(dto.getTitle(), dto.getDescription(), dto.getType(), dto.getThumbnailUrl(),

@@ -17,7 +17,6 @@ import com.mopl.mopl_batch.batch.Repository.ContentRepository;
 import com.mopl.mopl_batch.batch.Repository.ContentTagRepository;
 import com.mopl.mopl_batch.batch.Repository.TagRepository;
 import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
 import com.mopl.mopl_batch.batch.entity.Content;
 import com.mopl.mopl_batch.batch.entity.ContentTag;
 import com.mopl.mopl_batch.batch.entity.Tag;
@@ -28,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ContentsWriter implements ItemStreamWriter<ContentWithTags> {
+public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 
 	private final ContentRepository contentRepository;
 	private final ContentTagRepository contentTagRepository;
@@ -45,30 +44,29 @@ public class ContentsWriter implements ItemStreamWriter<ContentWithTags> {
 
 	@Override
 	@Transactional
-	public void write(Chunk<? extends ContentWithTags> chunk) {
+	public void write(Chunk<? extends ContentFetchDto> chunk) {
 		if (chunk.isEmpty()) {
 			return;
 		}
 
 		// 중복 제거.
-		Map<Long, ContentWithTags> contentMap = chunk.getItems().stream()
+		Map<Long, ContentFetchDto> contentMap = chunk.getItems().stream()
 			.collect(Collectors.toMap(
-				item -> item.getContent().getSourceId(),
+				ContentFetchDto::getSourceId,
 				item -> item,
 				(existing, replacement) -> replacement
 			));
-		List<ContentWithTags> uniqueItems = new ArrayList<>(contentMap.values());
+		List<ContentFetchDto> uniqueItems = new ArrayList<>(contentMap.values());
 
 		// Content 저장
 		List<Content> contents = uniqueItems.stream()
 			.map(item -> {
-				ContentFetchDto dto = item.getContent();
 				return new Content(
-					dto.getTitle(),
-					dto.getDescription(),
-					dto.getType(),
-					dto.getThumbnailUrl(),
-					dto.getSourceId()
+					item.getTitle(),
+					item.getDescription(),
+					item.getType(),
+					item.getThumbnailUrl(),
+					item.getSourceId()
 				);
 			})
 			.collect(Collectors.toList());

@@ -1,10 +1,11 @@
 package com.mopl.mopl_batch.batch.batch.tmdb.client;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -24,9 +25,12 @@ public class TmdbClient {
 
 	private final RestClient tmdbRestClient;
 
+	private final Map<Integer, String> genres;
+
 	public TmdbClient(
 		@Qualifier("tmdbRestClient") RestClient sportsApiRestClient) {
 		this.tmdbRestClient = sportsApiRestClient;
+		this.genres = setGenres();
 	}
 
 	public List<ContentFetchDto> fetchContent(Type type, int page) {
@@ -35,13 +39,6 @@ public class TmdbClient {
 			case TV_SERIES -> fetchTvContent(type, page);
 			default -> Collections.emptyList();
 		};
-	}
-
-	public Map<Integer, String> getGenres() {
-		Map<Integer, String> allGenres = new HashMap<>();
-		allGenres.putAll(getGenresByType("movie"));
-		allGenres.putAll(getGenresByType("tv"));
-		return allGenres;
 	}
 
 	private Map<Integer, String> getGenresByType(String typeStr) {
@@ -83,16 +80,27 @@ public class TmdbClient {
 			return Collections.emptyList();
 		}
 
-		return response.getResults().stream()
-			.map(movie -> ContentFetchDto.builder()
-				.title(movie.getTitle())
+		List<ContentFetchDto> result = new ArrayList<>();
+		List<TmdbMovieListResponse.TmdbMovieDto> results = response.getResults();
+		for (TmdbMovieListResponse.TmdbMovieDto dto : results) {
+
+			List<Integer> genreIds = dto.getGenreIds();
+			List<String> tags = Stream.concat(
+				genreIds.stream().map(this::getGenreById),
+				Stream.of(type.getTypeTag())
+			).toList();
+
+			result.add(ContentFetchDto.builder()
+				.title(dto.getTitle())
 				.type(type)
-				.description(movie.getOverview())
-				.thumbnailUrl(movie.getPosterPath())
-				.sourceId(movie.getId())
-				.genreIds(new HashSet<>(movie.getGenreIds()))
-				.build())
-			.toList();
+				.description(dto.getOverview())
+				.thumbnailUrl(dto.getPosterPath())
+				.sourceId(dto.getId())
+				.tags(tags)
+				.build());
+		}
+		return result;
+
 	}
 
 	private List<ContentFetchDto> fetchTvContent(Type type, int page) {
@@ -111,16 +119,26 @@ public class TmdbClient {
 			return Collections.emptyList();
 		}
 
-		return response.getResults().stream()
-			.map(tv -> ContentFetchDto.builder()
-				.title(tv.getName())
+		List<ContentFetchDto> result = new ArrayList<>();
+		List<TmdbTvListResponse.TmdbTvDto> results = response.getResults();
+
+		for (TmdbTvListResponse.TmdbTvDto dto : results) {
+			List<Integer> genreIds = dto.getGenreIds();
+			List<String> tags = Stream.concat(
+				genreIds.stream().map(this::getGenreById),
+				Stream.of(type.getTypeTag())
+			).toList();
+
+			result.add(ContentFetchDto.builder()
+				.title(dto.getName())
 				.type(type)
-				.description(tv.getOverview())
-				.thumbnailUrl(tv.getPosterPath())
-				.sourceId(tv.getId())
-				.genreIds(new HashSet<>(tv.getGenreIds()))
-				.build())
-			.toList();
+				.description(dto.getOverview())
+				.thumbnailUrl(dto.getPosterPath())
+				.sourceId(dto.getId())
+				.tags(tags)
+				.build());
+		}
+		return result;
 	}
 
 	private boolean isResponseInvalid(Object response, Object results) {
@@ -130,4 +148,16 @@ public class TmdbClient {
 		}
 		return false;
 	}
+
+	private String getGenreById(int genreId) {
+		return genres.getOrDefault(genreId, "");
+	}
+
+	private Map<Integer, String> setGenres() {
+		Map<Integer, String> allGenres = new HashMap<>();
+		allGenres.putAll(getGenresByType("movie"));
+		allGenres.putAll(getGenresByType("tv"));
+		return allGenres;
+	}
+
 }

@@ -10,7 +10,6 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.stereotype.Component;
 
 import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
 import com.mopl.mopl_batch.batch.batch.sport.client.SportsApiClient;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @StepScope
 @RequiredArgsConstructor
-public class SportApiReader implements ItemStreamReader<ContentWithTags> {
+public class SportApiReader implements ItemStreamReader<ContentFetchDto> {
 
 	private final SportsApiClient sportsApiRestClient;
 
@@ -51,7 +50,7 @@ public class SportApiReader implements ItemStreamReader<ContentWithTags> {
 	}
 
 	@Override
-	public ContentWithTags read() {
+	public ContentFetchDto read() {
 		while (true) {
 
 			if (currentDate > MAX_DATE) {

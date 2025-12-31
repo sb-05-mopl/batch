@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.common.processor.ContentsProcessor;
 import com.mopl.mopl_batch.batch.batch.common.writer.ContentsWriter;
 import com.mopl.mopl_batch.batch.batch.tmdb.listener.TmdbStepListener;
@@ -40,7 +40,7 @@ public class TmdbStepConfig {
 
 	private Step createTmdbStep(String stepName, Type contentType) {
 		return new StepBuilder(stepName, jobRepository)
-			.<ContentWithTags, ContentWithTags>chunk(CHUNK_SIZE, transactionManager)
+			.<ContentFetchDto, ContentFetchDto>chunk(CHUNK_SIZE, transactionManager)
 			.reader(tmdbReader)
 			.processor(contentsProcessor)
 			.writer(contentsWriter)
