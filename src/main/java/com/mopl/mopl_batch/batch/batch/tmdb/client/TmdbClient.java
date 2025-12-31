@@ -3,6 +3,7 @@ package com.mopl.mopl_batch.batch.batch.tmdb.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -96,7 +97,7 @@ public class TmdbClient {
 				.description(dto.getOverview())
 				.thumbnailUrl(dto.getPosterPath())
 				.sourceId(dto.getId())
-				.tags(tags)
+				.tags(new HashSet<>(tags))
 				.build());
 		}
 		return result;
@@ -135,7 +136,7 @@ public class TmdbClient {
 				.description(dto.getOverview())
 				.thumbnailUrl(dto.getPosterPath())
 				.sourceId(dto.getId())
-				.tags(tags)
+				.tags(new HashSet<>(tags))
 				.build());
 		}
 		return result;

@@ -1,6 +1,6 @@
 package com.mopl.mopl_batch.batch.batch.common.dto;
 
-import java.util.List;
+import java.util.Set;
 
 import com.mopl.mopl_batch.batch.entity.Content;
 import com.mopl.mopl_batch.batch.entity.Type;
@@ -16,7 +16,7 @@ public class ContentFetchDto {
 	private Type type;
 	private String thumbnailUrl;
 	private long sourceId;
-	private List<String> tags;
+	private Set<String> tags;
 
 	public static Content of(ContentFetchDto dto) {
 		return new Content(dto.getTitle(), dto.getDescription(), dto.getType(), dto.getThumbnailUrl(),

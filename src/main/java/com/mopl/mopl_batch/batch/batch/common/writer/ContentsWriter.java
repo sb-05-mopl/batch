@@ -81,7 +81,7 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 		List<ContentTag> contentTags = new ArrayList<>();
 		for (int i = 0; i < savedContents.size(); i++) {
 			Content savedContent = savedContents.get(i);
-			List<String> tagNames = uniqueItems.get(i).getTags();
+			List<String> tagNames = new ArrayList<>(uniqueItems.get(i).getTags());
 
 			for (String tagName : tagNames) {
 				Tag tag = tagMap.get(tagName);
