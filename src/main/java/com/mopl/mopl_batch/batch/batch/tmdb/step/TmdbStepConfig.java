@@ -45,6 +45,9 @@ public class TmdbStepConfig {
 			.processor(contentsProcessor)
 			.writer(contentsWriter)
 			.listener(new TmdbStepListener(contentType))
+			.faultTolerant()
+			.retry(Exception.class)
+			.retryLimit(3)
 			.build();
 	}
 }
