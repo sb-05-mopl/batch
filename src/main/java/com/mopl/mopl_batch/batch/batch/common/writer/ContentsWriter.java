@@ -1,7 +1,9 @@
 package com.mopl.mopl_batch.batch.batch.common.writer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.item.Chunk;
@@ -9,10 +11,16 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mopl.mopl_batch.batch.Repository.ContentRepository;
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.Repository.ContentTagRepository;
+import com.mopl.mopl_batch.batch.Repository.TagRepository;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
 import com.mopl.mopl_batch.batch.entity.Content;
+import com.mopl.mopl_batch.batch.entity.ContentTag;
+import com.mopl.mopl_batch.batch.entity.Tag;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,47 +28,113 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ContentsWriter implements ItemStreamWriter<ContentSaveDto> {
+public class ContentsWriter implements ItemStreamWriter<ContentWithTags> {
 
 	private final ContentRepository contentRepository;
+	private final ContentTagRepository contentTagRepository;
+	private final TagRepository tagRepository;
 
-	private int totalWritten = 0;
-	private static final String TOTAL_WRITTEN_KEY = "tmdb.total.written";
+	private int totalContentsWritten = 0;
+
+	private static final String TOTAL_CONTENTS_KEY = "tmdb.total.contents.written";
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		if (executionContext.containsKey(TOTAL_WRITTEN_KEY)) {
-			totalWritten = executionContext.getInt(TOTAL_WRITTEN_KEY);
-		} else {
-			totalWritten = 0;
-		}
+		totalContentsWritten = executionContext.getInt(TOTAL_CONTENTS_KEY, 0);
 	}
 
 	@Override
-	public void write(Chunk<? extends ContentSaveDto> chunk) {
-		if (chunk.isEmpty())
+	@Transactional
+	public void write(Chunk<? extends ContentWithTags> chunk) {
+		if (chunk.isEmpty()) {
 			return;
+		}
 
-		Map<Long, ContentSaveDto> contentMap = chunk.getItems().stream()
+		// 중복 제거.
+		Map<Long, ContentWithTags> contentMap = chunk.getItems().stream()
 			.collect(Collectors.toMap(
-				ContentSaveDto::getSourceId,
-				dto -> dto,
+				item -> item.getContent().getSourceId(),
+				item -> item,
 				(existing, replacement) -> replacement
 			));
+		List<ContentWithTags> uniqueItems = new ArrayList<>(contentMap.values());
 
-		List<Content> contents = contentMap.values().stream().map(ContentSaveDto::of).toList();
+		// Content 저장
+		List<Content> contents = uniqueItems.stream()
+			.map(item -> {
+				ContentFetchDto dto = item.getContent();
+				return new Content(
+					dto.getTitle(),
+					dto.getDescription(),
+					dto.getType(),
+					dto.getThumbnailUrl(),
+					dto.getSourceId()
+				);
+			})
+			.collect(Collectors.toList());
+		List<Content> savedContents = contentRepository.saveAll(contents);
 
-		contentRepository.saveAll(contents);
-		totalWritten += contents.size();
+		Set<String> allTagNames = uniqueItems.stream()
+			.flatMap(item -> item.getTags().stream())
+			.collect(Collectors.toSet());
+
+		Map<String, Tag> tagMap = getOrCreateTagsInBatch(allTagNames);
+
+		List<ContentTag> contentTags = new ArrayList<>();
+		for (int i = 0; i < savedContents.size(); i++) {
+			Content savedContent = savedContents.get(i);
+			List<String> tagNames = uniqueItems.get(i).getTags();
+
+			for (String tagName : tagNames) {
+				Tag tag = tagMap.get(tagName);
+				contentTags.add(new ContentTag(savedContent, tag));
+			}
+		}
+
+		contentTagRepository.saveAll(contentTags);
+
+		totalContentsWritten += savedContents.size();
+
+		log.info("[ContentsWriter.write] chunk written. contents={}, totalContents={}",
+			savedContents.size(), totalContentsWritten);
+	}
+
+	private Map<String, Tag> getOrCreateTagsInBatch(Set<String> tagNames) {
+
+		List<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
+
+		Map<String, Tag> tagMap = existingTags.stream()
+			.collect(Collectors.toMap(Tag::getName, tag -> tag));
+
+		Set<String> newTagNames = tagNames.stream()
+			.filter(name -> !tagMap.containsKey(name))
+			.collect(Collectors.toSet());
+
+		if (!newTagNames.isEmpty()) {
+			List<Tag> newTags = new ArrayList<>();
+			for (String name : newTagNames) {
+				newTags.add(new Tag(name));
+			}
+
+			List<Tag> savedNewTags = tagRepository.saveAll(newTags);
+
+			savedNewTags.forEach(tag -> tagMap.put(tag.getName(), tag));
+		}
+
+		return tagMap;
 	}
 
 	@Override
-	public void update(ExecutionContext ec) throws ItemStreamException {
-		ec.putInt(TOTAL_WRITTEN_KEY, totalWritten);
+	public void update(ExecutionContext executionContext) throws ItemStreamException {
+		executionContext.putInt(TOTAL_CONTENTS_KEY, totalContentsWritten);
+		log.debug("[ContentsWriter.update] execution context updated. totalContents={}",
+			totalContentsWritten);
 	}
 
 	@Override
 	public void close() throws ItemStreamException {
-		totalWritten = 0;
+		log.info("[ContentsWriter.close] writer closing. totalContents={}",
+			totalContentsWritten);
+		totalContentsWritten = 0;
 	}
 }

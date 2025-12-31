@@ -1,6 +1,8 @@
 package com.mopl.mopl_batch.batch.batch.tmdb.reader;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -10,7 +12,8 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.stereotype.Component;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
 import com.mopl.mopl_batch.batch.batch.tmdb.client.TmdbClient;
 import com.mopl.mopl_batch.batch.entity.Type;
 
@@ -21,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @StepScope
 @RequiredArgsConstructor
-public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
+public class TmdbReader implements ItemStreamReader<ContentWithTags> {
 
 	private final TmdbClient tmdbClient;
 
@@ -29,9 +32,10 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 
 	private int currentPage;
 	private int currentIndex;
-	private List<ContentSaveDto> currentPageData;
+	private List<ContentFetchDto> currentPageData;
+	private Map<Integer, String> genreMap;
 
-	private static final int MAX_PAGES = 100;
+	private static final int MAX_PAGES = 500;
 	private static final String CURRENT_PAGE_KEY = "tmdb.current.page";
 	private static final String CURRENT_INDEX_KEY = "tmdb.current.index";
 
@@ -49,6 +53,10 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 		this.currentIndex = 0;
 		this.currentPageData = null;
 
+		if (genreMap == null) {
+			genreMap = tmdbClient.getGenres();
+		}
+
 		if (ec.containsKey(CURRENT_PAGE_KEY)) {
 			currentPage = ec.getInt(CURRENT_PAGE_KEY);
 		}
@@ -56,11 +64,10 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 			currentIndex = ec.getInt(CURRENT_INDEX_KEY);
 		}
 		log.info("[TmdbReader.open] currentPage: {}", currentPage);
-
 	}
 
 	@Override
-	public ContentSaveDto read() {
+	public ContentWithTags read() {
 		while (true) {
 			if (currentType == null) {
 				throw new IllegalStateException(
@@ -89,8 +96,22 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 				continue;
 			}
 
-			ContentSaveDto item = currentPageData.get(currentIndex++);
-			return item;
+			ContentFetchDto item = currentPageData.get(currentIndex++);
+
+			List<String> tags = new ArrayList<>();
+
+			item.getGenreIds().forEach(id -> tags.add(genreMap.get(id)));
+
+			if (currentType.equals(Type.MOVIE)) {
+				tags.add("영화");
+			}
+			if (currentType.equals(Type.TV_SERIES)) {
+				tags.add("TV");
+			}
+
+			return ContentWithTags.builder()
+				.content(item)
+				.tags(tags).build();
 		}
 	}
 
@@ -103,6 +124,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 	@Override
 	public void close() throws ItemStreamException {
 		currentPageData = null;
+		genreMap = null;
 		currentPage = 1;
 		currentIndex = 0;
 	}

@@ -4,7 +4,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import com.mopl.mopl_batch.batch.Repository.ContentRepository;
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ContentsProcessor implements ItemProcessor<ContentSaveDto, ContentSaveDto> {
+public class ContentsProcessor implements ItemProcessor<ContentWithTags, ContentWithTags> {
 
 	private final ContentRepository contentRepository;
 
 	@Override
-	public ContentSaveDto process(ContentSaveDto item) {
+	public ContentWithTags process(ContentWithTags item) {
 
-		if (contentRepository.existsBySourceIdAndType(item.getSourceId(), item.getType())) {
+		if (contentRepository.existsBySourceIdAndType(item.getContent().getSourceId(), item.getContent().getType())) {
 			return null;
 		}
 

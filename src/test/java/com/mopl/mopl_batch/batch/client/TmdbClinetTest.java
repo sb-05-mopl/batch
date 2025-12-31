@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.client.TmdbClient;
 import com.mopl.mopl_batch.batch.entity.Type;
 
@@ -19,8 +19,8 @@ public class TmdbClinetTest {
 
 	@Test
 	public void fetchMovieContentsTest() {
-		List<ContentSaveDto> contentSaveDtos = tmdbClient.fetchContent(Type.MOVIE, 1);
-		for (ContentSaveDto dto : contentSaveDtos) {
+		List<ContentFetchDto> contentFetchDtos = tmdbClient.fetchContent(Type.MOVIE, 1);
+		for (ContentFetchDto dto : contentFetchDtos) {
 			System.out.println("title: " + dto.getTitle());
 			System.out.println("desc: " + dto.getDescription());
 			System.out.println("type: " + dto.getType());
@@ -31,8 +31,8 @@ public class TmdbClinetTest {
 
 	@Test
 	public void fetchTvContentsTest() {
-		List<ContentSaveDto> contentSaveDtos = tmdbClient.fetchContent(Type.TV_SERIES, 1);
-		for (ContentSaveDto dto : contentSaveDtos) {
+		List<ContentFetchDto> contentFetchDtos = tmdbClient.fetchContent(Type.TV_SERIES, 1);
+		for (ContentFetchDto dto : contentFetchDtos) {
 			System.out.println("title: " + dto.getTitle());
 			System.out.println("desc: " + dto.getDescription());
 			System.out.println("type: " + dto.getType());
@@ -43,8 +43,8 @@ public class TmdbClinetTest {
 
 	@Test
 	public void fetchGenreTest() {
-		Map<Long, String> genres = tmdbClient.getGenres(Type.MOVIE);
-		for (Long key : genres.keySet()) {
+		Map<Integer, String> genres = tmdbClient.getGenres();
+		for (int key : genres.keySet()) {
 			System.out.println(key + " : " + genres.get(key));
 		}
 	}
@@ -100,8 +100,8 @@ public class TmdbClinetTest {
 	@Test
 	public void duplicateTest() {
 		for (int page = 1; page < 50; page++) {
-			List<ContentSaveDto> contentSaveDtos = tmdbClient.fetchContent(Type.TV_SERIES, page);
-			for (ContentSaveDto dto : contentSaveDtos) {
+			List<ContentFetchDto> contentFetchDtos = tmdbClient.fetchContent(Type.TV_SERIES, page);
+			for (ContentFetchDto dto : contentFetchDtos) {
 				System.out.println(dto.getSourceId());
 				if (dto.getSourceId() == 119051) {
 					System.out.println("duplicate!! page: " + page);
