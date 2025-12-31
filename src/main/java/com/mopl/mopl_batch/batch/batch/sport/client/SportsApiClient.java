@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.common.util.DateFormatUtil;
 import com.mopl.mopl_batch.batch.batch.sport.dto.SportsEventsResponse;
 import com.mopl.mopl_batch.batch.batch.sport.dto.SportsEventsResponse.EventDto;
@@ -28,7 +28,7 @@ public class SportsApiClient {
 		this.sportsApiRestClient = sportsApiRestClient;
 	}
 
-	public List<ContentSaveDto> fetchContent(LocalDate date) {
+	public List<ContentFetchDto> fetchContent(LocalDate date) {
 		String dateString = DateFormatUtil.toString(date);
 
 		try {
@@ -56,7 +56,7 @@ public class SportsApiClient {
 		}
 	}
 
-	private List<ContentSaveDto> doFetch(String dateString) {
+	private List<ContentFetchDto> doFetch(String dateString) {
 		SportsEventsResponse response = sportsApiRestClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.queryParam("s", "Soccer")
@@ -75,8 +75,8 @@ public class SportsApiClient {
 			.toList();
 	}
 
-	private ContentSaveDto toContentSaveDto(EventDto event) {
-		return ContentSaveDto.builder()
+	private ContentFetchDto toContentSaveDto(EventDto event) {
+		return ContentFetchDto.builder()
 			.title(event.getStrEvent())
 			.type(Type.SPORTS)
 			.description(event.getStrFilename())

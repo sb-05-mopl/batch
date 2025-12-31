@@ -9,7 +9,8 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.stereotype.Component;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentWithTags;
 import com.mopl.mopl_batch.batch.batch.sport.client.SportsApiClient;
 
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @StepScope
 @RequiredArgsConstructor
-public class SportApiReader implements ItemStreamReader<ContentSaveDto> {
+public class SportApiReader implements ItemStreamReader<ContentWithTags> {
 
 	private final SportsApiClient sportsApiRestClient;
 
 	private LocalDate startDate;
 	private int currentDate;
 	private int currentIndex;
-	private List<ContentSaveDto> currentData;
+	private List<ContentFetchDto> currentData;
 
 	private static final int MAX_DATE = 100;
 	private static final String START_DATE_KEY = "sports.start.date";
@@ -50,7 +51,7 @@ public class SportApiReader implements ItemStreamReader<ContentSaveDto> {
 	}
 
 	@Override
-	public ContentSaveDto read() {
+	public ContentWithTags read() {
 		while (true) {
 
 			if (currentDate > MAX_DATE) {
@@ -76,7 +77,8 @@ public class SportApiReader implements ItemStreamReader<ContentSaveDto> {
 				continue;
 			}
 
-			return currentData.get(currentIndex++);
+			// return currentData.get(currentIndex++);
+			return null;
 		}
 	}
 
