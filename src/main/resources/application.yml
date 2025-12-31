@@ -8,7 +8,7 @@ data:
   tmdb:
     read-access-token: ${TMDB_READ_ACCESS_TOKEN}
     key: ${TMDB_KEY}
-    base-url: https://api.themoviedb.org/3/discover
+    base-url: https://api.themoviedb.org
 
   sport-api:
     base-url: https://www.thesportsdb.com/api/v1/json/${SPORT_API_KEY:123}/eventsday.php
