@@ -1,7 +1,5 @@
 package com.mopl.mopl_batch.batch.schedule;
 
-import java.time.LocalDate;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -18,7 +16,6 @@ public class CollectContentScheduler {
 	private final JobLauncher jobLauncher;
 	private final Job fetchSportContentsJob;
 	private final Job fetchTmdbContentsJob;
-	private final String date = LocalDate.now().toString();
 
 	// @PostConstruct // 실행하고 딱 한번 실행
 	@Scheduled(cron = "${spring.batch.schedule.tmdb}")
@@ -26,7 +23,8 @@ public class CollectContentScheduler {
 		try {
 
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addString("runDay", date)
+				.addLong("runTime", System.currentTimeMillis()) // 개발용
+				// .addString("runDay", LocalDate.now().toString()) // 배포용
 				.toJobParameters();
 			jobLauncher.run(fetchTmdbContentsJob, jobParameters);
 		} catch (Exception e) {
@@ -38,7 +36,8 @@ public class CollectContentScheduler {
 	public void setFetchSportContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addString("runDay", date)
+				.addLong("runTime", System.currentTimeMillis()) // 개발용
+				// .addString("runDay", LocalDate.now().toString()) // 배포용
 				.toJobParameters();
 			jobLauncher.run(fetchSportContentsJob, jobParameters);
 		} catch (Exception e) {
