@@ -10,7 +10,7 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.stereotype.Component;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.tmdb.client.TmdbClient;
 import com.mopl.mopl_batch.batch.entity.Type;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @StepScope
 @RequiredArgsConstructor
-public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
+public class TmdbReader implements ItemStreamReader<ContentFetchDto> {
 
 	private final TmdbClient tmdbClient;
 
@@ -29,9 +29,9 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 
 	private int currentPage;
 	private int currentIndex;
-	private List<ContentSaveDto> currentPageData;
+	private List<ContentFetchDto> currentPageData;
 
-	private static final int MAX_PAGES = 100;
+	private static final int MAX_PAGES = 500;
 	private static final String CURRENT_PAGE_KEY = "tmdb.current.page";
 	private static final String CURRENT_INDEX_KEY = "tmdb.current.index";
 
@@ -56,11 +56,10 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 			currentIndex = ec.getInt(CURRENT_INDEX_KEY);
 		}
 		log.info("[TmdbReader.open] currentPage: {}", currentPage);
-
 	}
 
 	@Override
-	public ContentSaveDto read() {
+	public ContentFetchDto read() {
 		while (true) {
 			if (currentType == null) {
 				throw new IllegalStateException(
@@ -89,8 +88,7 @@ public class TmdbReader implements ItemStreamReader<ContentSaveDto> {
 				continue;
 			}
 
-			ContentSaveDto item = currentPageData.get(currentIndex++);
-			return item;
+			return currentPageData.get(currentIndex++);
 		}
 	}
 

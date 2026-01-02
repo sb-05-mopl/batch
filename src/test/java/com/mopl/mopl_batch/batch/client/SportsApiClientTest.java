@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.mopl.mopl_batch.batch.batch.common.dto.ContentSaveDto;
+import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.sport.client.SportsApiClient;
 
 @SpringBootTest
@@ -19,9 +19,9 @@ public class SportsApiClientTest {
 	@Test
 	public void fetchContentTest() {
 		LocalDate date = LocalDate.now();
-		List<ContentSaveDto> contentSaveDtos = sportsApiRestClient.fetchContent(date);
+		List<ContentFetchDto> contentFetchDtos = sportsApiRestClient.fetchContent(date);
 
-		for (ContentSaveDto dto : contentSaveDtos) {
+		for (ContentFetchDto dto : contentFetchDtos) {
 			System.out.println("title: " + dto.getTitle());
 			System.out.println("desc: " + dto.getDescription());
 			System.out.println("type: " + dto.getType());

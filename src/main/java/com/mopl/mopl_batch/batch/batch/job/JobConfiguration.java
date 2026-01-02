@@ -31,6 +31,5 @@ public class JobConfiguration {
 		return new JobBuilder("fetchSportContentsJob", jobRepository)
 			.start(sportApiStep)
 			.build();
-
 	}
 }

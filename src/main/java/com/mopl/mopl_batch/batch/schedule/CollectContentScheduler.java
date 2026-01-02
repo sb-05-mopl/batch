@@ -17,13 +17,14 @@ public class CollectContentScheduler {
 	private final Job fetchSportContentsJob;
 	private final Job fetchTmdbContentsJob;
 
-	// @PostConstruct
-	// @Scheduled(cron = "0 0 1 * * *") // 새벽 1시
-	@Scheduled(cron = "0 */3 * * * *") // 3분 마다
+	// @PostConstruct // 실행하고 딱 한번 실행
+	@Scheduled(cron = "${spring.batch.schedule.tmdb}")
 	public void setFetchTmdbContentsJob() {
 		try {
+
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("runTime", System.currentTimeMillis())
+				.addLong("runTime", System.currentTimeMillis()) // 개발용
+				// .addString("runDay", LocalDate.now().toString()) // 배포용
 				.toJobParameters();
 			jobLauncher.run(fetchTmdbContentsJob, jobParameters);
 		} catch (Exception e) {
@@ -31,12 +32,12 @@ public class CollectContentScheduler {
 		}
 	}
 
-	// @Scheduled(cron = "0 0 1 * * *")
-	@Scheduled(cron = "0 */3 * * * *")
+	@Scheduled(cron = "${spring.batch.schedule.sport-api}")
 	public void setFetchSportContentsJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("runTime", System.currentTimeMillis())
+				.addLong("runTime", System.currentTimeMillis()) // 개발용
+				// .addString("runDay", LocalDate.now().toString()) // 배포용
 				.toJobParameters();
 			jobLauncher.run(fetchSportContentsJob, jobParameters);
 		} catch (Exception e) {
