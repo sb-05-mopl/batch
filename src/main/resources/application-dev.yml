@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    jdbc-url: ${DB_URL}
+    jdbc-url: ${BUSINESS_DB_URL}
     driver-class-name: org.postgresql.Driver
-    username: ${DB_USERNAME}
-    password: ${DB_USERNAME}
+    username: ${BUSINESS_DB_USERNAME}
+    password: ${BUSINESS_DB_PASSWORD}
 
   batch:
     datasource:
@@ -19,8 +19,8 @@ spring:
     job:
       enabled: false
     schedule:
-      tmdb: 0 0 1 * * * # 매일 새벽 1시
-      sport-api: 0 0 1 * * * # 매일 새벽 1시
+      tmdb: ${TMDB_SCHEDULE} # 매일 새벽 1시
+      sport-api: ${SPORT_API_SCHEDULE} # 매일 새벽 1시
 
     flyway:
     enabled: true

@@ -3,14 +3,14 @@ server:
 
 spring:
   datasource:
-    jdbc-url: jdbc:postgresql://localhost:5432/monew
+    jdbc-url: jdbc:postgresql://localhost:5432/batch
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 1234
 
   batch:
     datasource:
-      jdbc-url: jdbc:postgresql://localhost:5432/monew
+      jdbc-url: jdbc:postgresql://localhost:5432/batch
       driver-class-name: org.postgresql.Driver
       username: postgres
       password: 1234
