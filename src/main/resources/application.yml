@@ -1,9 +1,10 @@
+server:
+  port: 8080
 spring:
   application:
     name: batch
   profiles:
     active: ${PROFILE}
-
 data:
   tmdb:
     read-access-token: ${TMDB_READ_ACCESS_TOKEN}
@@ -12,3 +13,25 @@ data:
 
   sport-api:
     base-url: https://www.thesportsdb.com/api/v1/json/${SPORT_API_KEY:123}/eventsday.php
+
+management:
+  server:
+    port: 8081
+    address: 0.0.0.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        pushgateway:
+          enabled: true
+          base-url: ${PUSH_GATE_WAY_URL:http://localhost:9091}
+          job: batch-job
+          push-rate: 5000
+          grouping-key:
+            instance: ${spring.application.name}
+  metrics:
+    tags:
+      application: ${spring.application.name}
