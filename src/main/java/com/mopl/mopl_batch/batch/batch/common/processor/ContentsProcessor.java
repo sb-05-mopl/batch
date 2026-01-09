@@ -33,6 +33,4 @@ public class ContentsProcessor implements ItemProcessor<ContentFetchDto, Content
 		batchMetricsService.incrementNewCount(item.getType(), 1);
 		return item;
 	}
-
-
 }
