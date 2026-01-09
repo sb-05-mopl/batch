@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  batch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+
+    container_name: spring-batch
+    restart: unless-stopped
+    env_file:
+      - .env
+
+    network_mode: "host"
+
+    environment:
+      TZ: Asia/Seoul
+      BUSINESS_DB_URL: ${BUSINESS_DB_URL}
+      BATCH_DB_URL: ${BATCH_DB_URL}
+      PUSH_GATE_WAY_URL: ${PUSH_GATE_WAY_URL}
+      SPRING_PROFILES_ACTIVE: ${PROFILE}

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.mopl.mopl_batch.batch.batch.metric.BatchMetricsService;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
@@ -32,10 +33,11 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 	private final ContentRepository contentRepository;
 	private final ContentTagRepository contentTagRepository;
 	private final TagRepository tagRepository;
+	private final BatchMetricsService batchMetricsService;
 
 	private int totalContentsWritten = 0;
 
-	private static final String TOTAL_CONTENTS_KEY = "tmdb.total.contents.written";
+	private static final String TOTAL_CONTENTS_KEY = "total.contents.written";
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
@@ -71,6 +73,8 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 			})
 			.collect(Collectors.toList());
 		List<Content> savedContents = contentRepository.saveAll(contents);
+
+		batchMetricsService.incrementSavedCount(uniqueItems.getFirst().getType(), savedContents.size());
 
 		Set<String> allTagNames = uniqueItems.stream()
 			.flatMap(item -> item.getTags().stream())
@@ -135,4 +139,5 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 			totalContentsWritten);
 		totalContentsWritten = 0;
 	}
+
 }

@@ -5,7 +5,10 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.backoff.BackOffPolicy;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.mopl.mopl_batch.batch.batch.common.dto.ContentFetchDto;
 import com.mopl.mopl_batch.batch.batch.common.processor.ContentsProcessor;
@@ -46,8 +49,17 @@ public class TmdbStepConfig {
 			.writer(contentsWriter)
 			.listener(new TmdbStepListener(contentType))
 			.faultTolerant()
-			.retry(Exception.class)
+			.retry(ResourceAccessException.class)
 			.retryLimit(3)
+			.backOffPolicy(exponentialBackOffPolicy())
 			.build();
+	}
+	@Bean
+	public BackOffPolicy exponentialBackOffPolicy() {
+		ExponentialBackOffPolicy policy = new ExponentialBackOffPolicy();
+		policy.setInitialInterval(2000);
+		policy.setMultiplier(2.0);
+		policy.setMaxInterval(10000);
+		return policy;
 	}
 }
