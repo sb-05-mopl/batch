@@ -8,16 +8,38 @@ services:
     env_file:
       - .env
     environment:
-      - PROFILE=prod
+      - PROFILE=${PROFILE}
 
-      - DB_URL=${DB_URL}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      # TMDB API
+      - TMDB_READ_ACCESS_TOKEN=${TMDB_READ_ACCESS_TOKEN}
+      - TMDB_KEY=${TMDB_KEY}
+      - TMDB_SCHEDULE=${TMDB_SCHEDULE}
+      - SPORT_API_SCHEDULE=${SPORT_API_SCHEDULE}
 
-      - SPRING_ELASTIC_SERVERS=${SPRING_ELASTIC_SERVERS}
+      # Business Database
+      - BUSINESS_DB_URL=${BUSINESS_DB_URL}
+      - BUSINESS_DB_USERNAME=${BUSINESS_DB_USERNAME}
+      - BUSINESS_DB_PASSWORD=${BUSINESS_DB_PASSWORD}
+
+      # Batch Database
+      - BATCH_DB_URL=${BATCH_DB_URL}
+      - BATCH_DB_USERNAME=${BATCH_DB_USERNAME}
+      - BATCH_DB_PASSWORD=${BATCH_DB_PASSWORD}
+
+      # Redis
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
 
+      # Elasticsearch
+      - SPRING_ELASTIC_SERVERS=${SPRING_ELASTIC_SERVERS}
+
+      # Prometheus
       - PROMETHEUS_PUSHGATEWAY_URL=${PROMETHEUS_PUSHGATEWAY_URL}
     ports:
       - "8082:8082"
+    networks:
+      - batch-network
+
+networks:
+  batch-network:
+    driver: bridge
