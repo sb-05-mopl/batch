@@ -40,7 +40,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Batch Docker 이미지 생성
-        run: docker build -t mopl-batch -f mopl-batch/Dockerfile-prod .
+        run: docker build -t mopl-batch -f Dockerfile-prod .
 
       - name: Batch Docker 이미지에 Tag 붙이기.
         run: docker tag mopl-batch ${{steps.login-ecr.outputs.registry}}/mopl/batch:latest
