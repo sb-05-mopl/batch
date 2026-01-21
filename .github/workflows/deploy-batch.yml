@@ -84,9 +84,9 @@ jobs:
 
       - name: 압축하기
         run: |
-          cp deploy/appspec.yml ./appspec.yml
-          cp -r deploy/scripts ./scripts
-          cp deploy/docker-compose.prod.yml ./docker-compose.prod.yml
+          cp deploy/batch/appspec.yml ./appspec.yml
+          cp -r deploy/batch/scripts ./scripts
+          cp deploy/batch/docker-compose.prod.yml ./docker-compose.prod.yml
           tar -czvf $GITHUB_SHA.tar.gz \
             appspec.yml \
             .env \
