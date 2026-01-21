@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - deploy
     paths:
       - "mopl-batch/**"
       - ".github/workflows/deploy-batch.yml"
