@@ -4,10 +4,10 @@ on:
     branches:
       - main
       - deploy
-    paths:
-      - "mopl-batch/**"
-      - ".github/workflows/deploy-batch.yml"
-      - "deploy/batch/**"
+#    paths:
+#      - "mopl-batch/**"
+#      - ".github/workflows/deploy-batch.yml"
+#      - "deploy/batch/**"
 
 jobs:
   deploy:
