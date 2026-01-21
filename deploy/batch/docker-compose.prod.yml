@@ -36,7 +36,7 @@ services:
       # Prometheus
       - PROMETHEUS_PUSHGATEWAY_URL=${PROMETHEUS_PUSHGATEWAY_URL}
     ports:
-      - "8082:8082"
+      - "8082:8081"
     networks:
       - batch-network
 
