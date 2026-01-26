@@ -31,6 +31,7 @@ public class TmdbClient {
 	private final Map<Integer, String> genres;
 	private final static long TOO_MANY_REQUESTS_EXCEPTION = 60_000L;
 	private final static long HTTP_SERVER_ERROR_EXCEPTION_SLEEP = 5_000L;
+	private final static String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 	public TmdbClient(
 		@Qualifier("tmdbRestClient") RestClient sportsApiRestClient) {
@@ -117,7 +118,7 @@ public class TmdbClient {
 				.title(dto.getTitle())
 				.type(type)
 				.description(dto.getOverview())
-				.thumbnailUrl(dto.getPosterPath())
+				.thumbnailUrl(buildImageUrl(dto.getPosterPath()))
 				.sourceId(dto.getId())
 				.tags(new HashSet<>(tags))
 				.build());
@@ -156,7 +157,7 @@ public class TmdbClient {
 				.title(dto.getName())
 				.type(type)
 				.description(dto.getOverview())
-				.thumbnailUrl(dto.getPosterPath())
+				.thumbnailUrl(buildImageUrl(dto.getPosterPath()))
 				.sourceId(dto.getId())
 				.tags(new HashSet<>(tags))
 				.build());
@@ -190,6 +191,13 @@ public class TmdbClient {
 			Thread.currentThread().interrupt();
 			throw new IllegalStateException("Interrupted while retrying", ie);
 		}
+	}
+
+	private String buildImageUrl(String path) {
+		if (path == null || path.isBlank()) {
+			return null;
+		}
+		return TMDB_IMAGE_BASE_URL + path;
 	}
 
 }

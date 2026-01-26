@@ -2,17 +2,17 @@ spring:
   datasource:
     jdbc-url: jdbc:postgresql://localhost:5432/batch
     driver-class-name: org.postgresql.Driver
-    username: postgres
+    username: app
     password: 1234
 
   batch:
     datasource:
       jdbc-url: jdbc:postgresql://localhost:5432/batch
       driver-class-name: org.postgresql.Driver
-      username: postgres
+      username: app
       password: 1234
-    jdbc:
-      initialize-schema: always
+#    jdbc:
+#      initialize-schema: always
     job:
       enabled: false
     schedule:
@@ -21,7 +21,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

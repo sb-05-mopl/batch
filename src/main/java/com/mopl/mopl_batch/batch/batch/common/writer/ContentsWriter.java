@@ -4,15 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.mopl.mopl_batch.batch.batch.metric.BatchMetricsService;
+import com.mopl.mopl_batch.batch.storage.BinaryStorage;
+
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import com.mopl.mopl_batch.batch.Repository.ContentRepository;
 import com.mopl.mopl_batch.batch.Repository.ContentTagRepository;
@@ -34,14 +42,20 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 	private final ContentTagRepository contentTagRepository;
 	private final TagRepository tagRepository;
 	private final BatchMetricsService batchMetricsService;
+	private final BinaryStorage binaryStorage;
 
+	private final RestClient imageDownloadClient = RestClient.create();
+
+	private ExecutorService imageExecutor;
 	private int totalContentsWritten = 0;
 
 	private static final String TOTAL_CONTENTS_KEY = "total.contents.written";
+	private static final int THREAD_POOL_SIZE = 10;
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
 		totalContentsWritten = executionContext.getInt(TOTAL_CONTENTS_KEY, 0);
+		imageExecutor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 	}
 
 	@Override
@@ -60,18 +74,32 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 			));
 		List<ContentFetchDto> uniqueItems = new ArrayList<>(contentMap.values());
 
-		// Content 저장
-		List<Content> contents = uniqueItems.stream()
-			.map(item -> {
-				return new Content(
-					item.getTitle(),
-					item.getDescription(),
-					item.getType(),
-					item.getThumbnailUrl(),
-					item.getSourceId()
-				);
-			})
-			.collect(Collectors.toList());
+		// Content 저장 (썸네일을 S3에 병렬 업로드 후 URL 저장)
+		long uploadStartTime = System.currentTimeMillis();
+
+		List<CompletableFuture<String>> futures = uniqueItems.stream()
+			.map(item -> CompletableFuture.supplyAsync(() -> uploadThumbnailToS3(item), imageExecutor))
+			.toList();
+
+		List<String> s3Urls = futures.stream()
+			.map(CompletableFuture::join)
+			.toList();
+
+		long uploadEndTime = System.currentTimeMillis();
+		log.info("[ContentsWriter.write] thumbnail upload completed. count={}, totalTime={}ms",
+			uniqueItems.size(), uploadEndTime - uploadStartTime);
+
+		List<Content> contents = new ArrayList<>();
+		for (int i = 0; i < uniqueItems.size(); i++) {
+			ContentFetchDto item = uniqueItems.get(i);
+			contents.add(new Content(
+				item.getTitle(),
+				item.getDescription(),
+				item.getType(),
+				s3Urls.get(i),
+				item.getSourceId()
+			));
+		}
 		List<Content> savedContents = contentRepository.saveAll(contents);
 
 		batchMetricsService.incrementSavedCount(uniqueItems.getFirst().getType(), savedContents.size());
@@ -101,6 +129,92 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 			savedContents.size(), totalContentsWritten);
 	}
 
+	private String uploadThumbnailToS3(ContentFetchDto item) {
+		String thumbnailUrl = item.getThumbnailUrl();
+
+		if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
+			return null;
+		}
+
+		try {
+			// 이미지 다운로드
+			long downloadStart = System.currentTimeMillis();
+			byte[] imageData = imageDownloadClient.get()
+				.uri(thumbnailUrl)
+				.retrieve()
+				.body(byte[].class);
+			long downloadTime = System.currentTimeMillis() - downloadStart;
+
+			if (imageData == null || imageData.length == 0) {
+				log.warn("[ContentsWriter.uploadThumbnailToS3] empty image data. type={}, sourceId={}, url={}",
+					item.getType(), item.getSourceId(), thumbnailUrl);
+				return null;
+			}
+
+			String contentType = detectContentType(thumbnailUrl);
+
+			// S3 업로드
+			long uploadStart = System.currentTimeMillis();
+			String s3Url = binaryStorage.putThumbnail(
+				item.getType(),
+				item.getSourceId(),
+				imageData,
+				contentType
+			);
+			long uploadTime = System.currentTimeMillis() - uploadStart;
+
+			log.debug("[ContentsWriter.uploadThumbnailToS3] completed. type={}, sourceId={}, downloadTime={}ms, uploadTime={}ms, size={}bytes",
+				item.getType(), item.getSourceId(), downloadTime, uploadTime, imageData.length);
+
+			return s3Url;
+		} catch (Exception e) {
+			log.warn("[ContentsWriter.uploadThumbnailToS3] failed to upload. type={}, sourceId={}, url={}, error={}",
+				item.getType(), item.getSourceId(), thumbnailUrl, e.getMessage());
+			return null;
+		}
+	}
+
+
+
+	@Override
+	public void update(ExecutionContext executionContext) throws ItemStreamException {
+		executionContext.putInt(TOTAL_CONTENTS_KEY, totalContentsWritten);
+		log.debug("[ContentsWriter.update] execution context updated. totalContents={}",
+			totalContentsWritten);
+	}
+
+	@Override
+	public void close() throws ItemStreamException {
+		log.info("[ContentsWriter.close] writer closing. totalContents={}",
+			totalContentsWritten);
+		totalContentsWritten = 0;
+
+		imageExecutor.shutdown();
+		try {
+			if (!imageExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+				imageExecutor.shutdownNow();
+			}
+		} catch (InterruptedException e) {
+			imageExecutor.shutdownNow();
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	private String detectContentType(String url) {
+		if (url == null) {
+			return MediaType.IMAGE_JPEG_VALUE;
+		}
+		String lowerUrl = url.toLowerCase();
+		if (lowerUrl.contains(".png")) {
+			return MediaType.IMAGE_PNG_VALUE;
+		} else if (lowerUrl.contains(".gif")) {
+			return MediaType.IMAGE_GIF_VALUE;
+		} else if (lowerUrl.contains(".webp")) {
+			return "image/webp";
+		}
+		return MediaType.IMAGE_JPEG_VALUE;
+	}
+
 	private Map<String, Tag> getOrCreateTagsInBatch(Set<String> tagNames) {
 
 		List<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
@@ -124,20 +238,6 @@ public class ContentsWriter implements ItemStreamWriter<ContentFetchDto> {
 		}
 
 		return tagMap;
-	}
-
-	@Override
-	public void update(ExecutionContext executionContext) throws ItemStreamException {
-		executionContext.putInt(TOTAL_CONTENTS_KEY, totalContentsWritten);
-		log.debug("[ContentsWriter.update] execution context updated. totalContents={}",
-			totalContentsWritten);
-	}
-
-	@Override
-	public void close() throws ItemStreamException {
-		log.info("[ContentsWriter.close] writer closing. totalContents={}",
-			totalContentsWritten);
-		totalContentsWritten = 0;
 	}
 
 }
