@@ -55,7 +55,13 @@ jobs:
           cat > .env << EOF
           PROFILE=${{secrets.PROFILE}}
           
-          # TMDB API
+          AWS_S3_ACCESS_KEY=${{secrets.AWS_S3_ACCESS_KEY}}
+          AWS_S3_SECRET_KEY=${{secrets.AWS_S3_SECRET_KEY}}
+          AWS_S3_BUCKET=${{secrets.AWS_S3_BUCKET}}
+          AWS_S3_REGION=${{secrets.AWS_S3_REGION}}
+  
+
+  # TMDB API
           TMDB_READ_ACCESS_TOKEN=${{secrets.TMDB_READ_ACCESS_TOKEN}}
           TMDB_KEY=${{secrets.TMDB_KEY}}
           TMDB_SCHEDULE=${{secrets.TMDB_SCHEDULE}}
