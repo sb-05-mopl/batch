@@ -14,7 +14,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @EnableBatchProcessing
 public class BatchConfig {
-
 	@Primary
 	@Bean(name = "dataSource")
 	@ConfigurationProperties(prefix = "spring.batch.datasource")
