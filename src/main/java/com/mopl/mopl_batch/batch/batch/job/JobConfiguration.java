@@ -17,7 +17,6 @@ public class JobConfiguration {
 	private final Step tmdbMovieStep;
 	private final Step tmdbTvStep;
 	private final Step sportApiStep;
-
 	@Bean
 	public Job fetchTmdbContentsJob() {
 		return new JobBuilder("fetchTmdbContentsJob", jobRepository)
