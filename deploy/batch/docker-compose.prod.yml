@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  batch-app:
+    image: 989775483620.dkr.ecr.ap-northeast-2.amazonaws.com/mopl/batch:latest
+    container_name: batch-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PROFILE=${PROFILE}
+
+      # TMDB API
+      - TMDB_READ_ACCESS_TOKEN=${TMDB_READ_ACCESS_TOKEN}
+      - TMDB_KEY=${TMDB_KEY}
+      - TMDB_SCHEDULE=${TMDB_SCHEDULE}
+      - SPORT_API_SCHEDULE=${SPORT_API_SCHEDULE}
+
+      # Business Database
+      - BUSINESS_DB_URL=${BUSINESS_DB_URL}
+      - BUSINESS_DB_USERNAME=${BUSINESS_DB_USERNAME}
+      - BUSINESS_DB_PASSWORD=${BUSINESS_DB_PASSWORD}
+
+      # Batch Database
+      - BATCH_DB_URL=${BATCH_DB_URL}
+      - BATCH_DB_USERNAME=${BATCH_DB_USERNAME}
+      - BATCH_DB_PASSWORD=${BATCH_DB_PASSWORD}
+
+      # Redis
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+
+      # Elasticsearch
+      - SPRING_ELASTIC_SERVERS=${SPRING_ELASTIC_SERVERS}
+
+      # Prometheus
+      - PROMETHEUS_PUSHGATEWAY_URL=${PROMETHEUS_PUSHGATEWAY_URL}
+    ports:
+      - "8082:8081"
+    networks:
+      - batch-network
+
+networks:
+  batch-network:
+    driver: bridge
