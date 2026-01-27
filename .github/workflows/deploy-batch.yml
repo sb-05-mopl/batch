@@ -60,14 +60,11 @@ jobs:
           AWS_S3_BUCKET=${{secrets.AWS_S3_BUCKET}}
           AWS_S3_REGION=${{secrets.AWS_S3_REGION}}
   
-
-  # TMDB API
           TMDB_READ_ACCESS_TOKEN=${{secrets.TMDB_READ_ACCESS_TOKEN}}
           TMDB_KEY=${{secrets.TMDB_KEY}}
           TMDB_SCHEDULE=${{secrets.TMDB_SCHEDULE}}
           SPORT_API_SCHEDULE=${{secrets.SPORT_API_SCHEDULE}}
           
-          # Business Database
           BUSINESS_DB_URL=${{secrets.BUSINESS_DB_URL}}
           BUSINESS_DB_USERNAME=${{secrets.BUSINESS_DB_USERNAME}}
           BUSINESS_DB_PASSWORD=${{secrets.BUSINESS_DB_PASSWORD}}
