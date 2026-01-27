@@ -29,7 +29,6 @@ public class JpaConfig {
 	public DataSource businessDataSource() {
 		return DataSourceBuilder.create().build();
 	}
-
 	@Bean
 	public LocalContainerEntityManagerFactoryBean businessEntityManager() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
