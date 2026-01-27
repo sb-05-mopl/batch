@@ -49,7 +49,6 @@ jobs:
 
       - name: ECR에 Batch Docker 이미지 Push
         run: docker push ${{steps.login-ecr.outputs.registry}}/mopl/batch:latest
-
       - name: .env 파일 생성
         run: |
           cat > .env << EOF
