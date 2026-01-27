@@ -34,7 +34,6 @@ public class CollectContentScheduler {
 			e.printStackTrace();
 		}
 	}
-
 	// @Scheduled(cron = "${spring.batch.schedule.sport-api}")
 	@PostConstruct // 실행하고 딱 한번 실행
 	public void setFetchSportContentsJob() {
