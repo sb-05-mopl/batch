@@ -2,6 +2,9 @@
 
 TMDB, TheSportsDB 등 외부 API에서 콘텐츠 데이터를 수집하여 PostgreSQL에 저장하고, 썸네일 이미지를 AWS S3에 업로드하는 Spring Batch 애플리케이션입니다.
 
+<img width="1270" height="706" alt="image" src="https://github.com/user-attachments/assets/f38bb99c-9889-440e-ad73-b95daa93595d" />
+
+
 ## 기술 스택
 
 - **Java 21** / **Spring Boot 3.5.9**
